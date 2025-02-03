@@ -32,8 +32,8 @@
   float lastDisplacementR = 0;
 
   //desired speeds and sum of all errors
-  float V_desired = 0.75;
-  float omega_desired = 0;
+  float V_desired = 0;
+  float omega_desired = 4;
   float sumErrorR = 0;
   float sumErrorL = 0;
 
@@ -70,13 +70,32 @@
 
 //--------------------------------------------- MOTORS --------------------------------------------------
   void motors(short speedL, short speedR){ 
-    digitalWrite(I2, LOW);
+
+    if (speedL < 0 && speedR < 0) {  // backward
+    digitalWrite(I1, LOW);
+    digitalWrite(I2, HIGH);
+    digitalWrite(I3, HIGH);
+    digitalWrite(I4, LOW);
+  } else if (speedL > 0 && speedR > 0) {  // forward
     digitalWrite(I1, HIGH);
+    digitalWrite(I2, LOW);
+    digitalWrite(I3, LOW);
+    digitalWrite(I4, HIGH);
+  } else if (speedL > 0 && speedR < 0) {  // turn left
+    digitalWrite(I2, HIGH);
+    digitalWrite(I1, LOW);
     digitalWrite(I4, HIGH);
     digitalWrite(I3, LOW);
+  } else if (speedL < 0 && speedR > 0) {  // turn right
+    digitalWrite(I2, LOW);
+    digitalWrite(I1, HIGH);
+    digitalWrite(I4, LOW);
+    digitalWrite(I3, HIGH);
+  
+  }
 
-    analogWrite(EA, speedR);
-    analogWrite(EB, speedL);
+    analogWrite(EA, abs(speedR));
+    analogWrite(EB, abs(speedL));
     }
 
 //--------------------------------------------- FIND VELOCITIES -----------------------------------------
@@ -121,12 +140,26 @@
 // -------------------------------------------- FIND ERRORS ---------------------------------------------
   float findErrorL(float vL) { 
     float errorL = requiredL() - vL; //find error in velocity
-    sumErrorL += errorL;             //add error to integral term
+    
+      sumErrorL += errorL;             //add error to integral term
+      // Serial.print("error summed L \n");
+    
+      Serial.print("errorL = ");
+      Serial.print(errorL);
+      Serial.print("\n");
+
     return errorL;                    //return error 
   }
   float findErrorR(float vR) { 
     float errorR = requiredR() - vR;
-    sumErrorR += errorR;
+    
+      sumErrorR += errorR;
+      // Serial.print("error summed R \n");
+    
+    Serial.print("    errorR = ");
+    Serial.print(errorR);
+    Serial.print("\n");
+
     return errorR;
     
   }
@@ -174,6 +207,7 @@
 // -------------------------------------------- LOOP ----------------------------------------------------
  void loop()
  {
+
     //initialize variables for speed at current time interval
     float vL = findVelocityL();
     float vR = findVelocityR();
@@ -192,9 +226,16 @@
 
     short uL, uR;
     //set uL, and uR and run motors at speed
-   uL = PController(findErrorL(vL), sumErrorL, 200, 100);
+   uL = PController(findErrorL(vL), sumErrorL, 220, 80);
 
-   uR = PController(findErrorR(vR), sumErrorR, 200, 100);
+   uR = PController(findErrorR(vR), sumErrorR, 220, 80);
+   Serial.print("UL = ");
+   Serial.print(uL);
+   Serial.print("    UR = ");
+   Serial.print(uR);
+   Serial.print("\n");
+
+
     motors(uL,uR);
 
     //Short delay [ms]
