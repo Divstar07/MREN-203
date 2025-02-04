@@ -1,7 +1,7 @@
 // Arduino analog input pin to which the Sharp sensor is connected
 const byte SHARP_PIN_FRONT = A5;
 const byte SHARP_PIN_LEFT = A4;
-const byte SHARP_PIN_RIGHT = A3;
+const byte SHARP_PIN_RIGHT = A1;
 
 // Variables to store the proximity measurement
 int sharp_val_front = 0; // integer read from analog pin
@@ -15,7 +15,7 @@ float sharp_range_right;
 
 float convertToCm(int num)
 {
-  float dist = 1578.9*pow(num, -0.82);
+  float dist = 15981*pow((float)num, -1.217) + 2;
   return dist;
 }
 
