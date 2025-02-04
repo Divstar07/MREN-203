@@ -15,7 +15,7 @@ float sharp_range_right;
 
 float convertToCm(int num)
 {
-  float dist = 1578.9*pow(num, 0.82) + 5;
+  float dist = 1578.9*pow(num, -0.82);
   return dist;
 }
 
